@@ -6,7 +6,7 @@ from slackclient import SlackClient
 #### https://www.fullstackpython.com/blog/build-first-slack-bot-python.html ####
 
 # instantiate Slack client
-slack_client = SlackClient('xoxb-596484384067-2488886206882-8j4J4qxu5o4Zcb5rVqPQQgEE')
+slack_client = SlackClient('####')
 
 # starterbot's user ID in Slack: value is assigned after the bot starts up
 starterbot_id = None
