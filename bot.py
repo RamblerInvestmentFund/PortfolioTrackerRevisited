@@ -1,6 +1,7 @@
 import slack
 import quandl
 import os
+import logging
 from fpdf import FPDF
 from yahoo_fin import stock_info as si
 import yfinance as yf
@@ -114,8 +115,7 @@ pdf.rect(x = 0, y = 12, w = pdf.w + 1, h = 186, style = 'F')
 pdf.output('pdf_1.pdf')
 
 
-
-
-#### Call Bot and Send Portfolio
+# ---- Call Bot and Send Portfolio
 # client = slack.WebClient(token = '####')
-# client.chat_postMessage(channel = '#sector-materials', text='Hello World!')
+# client.files_upload(channels = '#sector-materials', file='./pdf_1.pdf')
+
