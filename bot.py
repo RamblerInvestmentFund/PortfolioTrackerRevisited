@@ -65,6 +65,15 @@ benchmarkHistorical = benchmarkHistorical.mul(benchmarkShares, axis=1)
 benchPortfolioValue = pd.DataFrame(columns=['Portfolio'], index=benchmarkHistorical.index)
 benchPortfolioValue['Portfolio'] = benchmarkHistorical.sum(axis=1)
 
+# ---- Creates Table for Top Gainers/Losers
+priceDifference = historicalValue.iloc[-1].subtract(totalHoldingStart)
+percentChange = priceDifference.divide(totalHoldingStart) * 100
+gainers = percentChange[percentChange > 0]
+losers = percentChange[percentChange < 0]
+
+topGainers = pd.DataFrame(data = gainers, index = gainers.index, columns = ['% Change']).sort_values(by=['% Change'], ascending=False)
+topLosers = pd.DataFrame(data = losers, index = losers.index, columns = ['% Change']).sort_values(by=['% Change'], ascending=True)
+
 # ---- Creates Plot of Portfolio
 plt.style.use('Solarize_Light2')
 plt.plot(portfolioValue, color='red')
