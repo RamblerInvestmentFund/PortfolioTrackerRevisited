@@ -26,7 +26,7 @@ df['Basis'] = basis
 
 # ---- Creates Historical DataFrame of price data and Portfolio Value Data Frame from the rebalance
 historicalValue = yf.download(tickers=tickerString, start = '2021-06-21')
-historicalValue = historicalValue['Close'] 
+historicalValue = historicalValue['Close']
 historicalValue = historicalValue.mul(shares, axis=1)
 portfolioValue = pd.DataFrame(columns=['Portfolio'], index=historicalValue.index)
 portfolioValue['Portfolio'] = historicalValue.sum(axis=1)
@@ -67,12 +67,14 @@ benchPortfolioValue['Portfolio'] = benchmarkHistorical.sum(axis=1)
 
 # ---- Creates Table for Top Gainers/Losers
 priceDifference = historicalValue.iloc[-1].subtract(totalHoldingStart)
-percentChange = priceDifference.divide(totalHoldingStart) * 100
-gainers = percentChange[percentChange > 0]
-losers = percentChange[percentChange < 0]
+percentChange = round(priceDifference.divide(totalHoldingStart) * 100, 2)
+stockChanges = pd.DataFrame(data=percentChange, index=percentChange.index, columns=['% Change'])
 
-topGainers = pd.DataFrame(data = gainers, index = gainers.index, columns = ['% Change']).sort_values(by=['% Change'], ascending=False)
-topLosers = pd.DataFrame(data = losers, index = losers.index, columns = ['% Change']).sort_values(by=['% Change'], ascending=True)
+topGainers = stockChanges[stockChanges['% Change'] > 0].sort_values(by=['% Change'], ascending=False)
+topGainers['% Change'] = '+' + topGainers['% Change'].apply(lambda x: '{:.2f}'.format(x)) + '%' # Lambda conversion keeps trailing 0's
+
+topLosers = stockChanges[stockChanges['% Change'] < 0].sort_values(by=['% Change'])
+topLosers['% Change'] = topLosers['% Change'].apply(lambda x: '{:.2f}'.format(x)) + '%'
 
 # ---- Creates Plot of Portfolio
 plt.style.use('Solarize_Light2')
