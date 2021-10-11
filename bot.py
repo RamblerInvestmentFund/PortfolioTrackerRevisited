@@ -76,16 +76,18 @@ topGainers['% Change'] = '+' + topGainers['% Change'].apply(lambda x: '{:.2f}'.f
 topLosers = stockChanges[stockChanges['% Change'] < 0].sort_values(by=['% Change'])
 topLosers['% Change'] = topLosers['% Change'].apply(lambda x: '{:.2f}'.format(x)) + '%'
 
-# ---- Creates Plot of Portfolio
-plt.style.use('Solarize_Light2')
-plt.plot(portfolioValue, color='red')
-plt.plot(benchPortfolioValue, color='blue')
-plt.xticks(rotation = 20)
-plt.ylabel('Portfolio Change')
-plt.xlabel('Days Since Rebalance')
-plt.legend(['RIF', 'Benchmark'])
-plt.title('Portfolio Growth Since The Rebalance V.S. Benchmark', y=1.05)
-plt.savefig('portfolioVSbenchmark.png')
+
+# # ---- Creates Plot of Portfolio
+# plt.style.use('Solarize_Light2')
+# plt.plot(portfolioValue, color='red')
+# plt.plot(benchPortfolioValue, color='blue')
+# plt.xticks(rotation = 20)
+# plt.ylabel('Portfolio Change')
+# plt.xlabel('Days Since Rebalance')
+# plt.legend(['RIF', 'Benchmark'])
+# plt.title('Portfolio Growth Since The Rebalance V.S. Benchmark', y=1.05)
+# plt.savefig('portfolioVSbenchmark.png')
+# #plt.show()
 
 
 today = datetime.date.today()
@@ -112,7 +114,28 @@ pdf.rect(x = 0, y = 0, w = pdf.w, h = 12, style = 'F')
 pdf.rect(x = 0, y = 198, w = pdf.w, h = 12, style = 'F')
 pdf.set_fill_color(0, 0, 0)
 pdf.rect(x = 0, y = 12, w = pdf.w, h = 186, style = 'F')
-pdf.image(x=1, y=13, w=(pdf.w+1)/2, name='portfolioVSbenchmark.png')
+pdf.image(x=135, y=47, w=(pdf.w+1)/2, name='portfolioVSbenchmark.png')
+
+pdf.set_font("Times", size=16)
+pdf.set_font(style='BU')
+pdf.set_text_color(248, 240, 227)
+pdf.cell(0, 13, ln=1)
+pdf.cell(125, 8, 'Top Gainers / Top Losers', ln=1, align='C')
+pdf.set_font("Times", size=14)
+
+losersList = topLosers.to_records()
+losersList = list(losersList)
+i = 0
+for row in topGainers.iterrows():
+    pChange = str(row[1])
+    pChange = pChange.split()
+    pdf.set_text_color(0, 255, 0)
+    pdf.cell(25, 8, str(row[0]))
+    pdf.cell(50, 8, pChange[2])
+    pdf.set_text_color(255, 0, 0)
+    pdf.cell(25, 8, losersList[i][0])
+    pdf.cell(25, 8, losersList[i][1], ln=1)
+    i+=1
 
 # ---- Third Page
 pdf.add_page()
@@ -126,7 +149,7 @@ pdf.rect(x = 0, y = 12, w = pdf.w + 1, h = 186, style = 'F')
 pdf.output('pdf_1.pdf')
 
 
-# ---- Call Bot and Send Portfolio
-# client = slack.WebClient(token = '####')
-# client.files_upload(channels = '#sector-materials', file='./pdf_1.pdf')
+# # ---- Call Bot and Send Portfolio
+# # client = slack.WebClient(token = '####')
+# # client.files_upload(channels = '#sector-materials', file='./pdf_1.pdf')
 
