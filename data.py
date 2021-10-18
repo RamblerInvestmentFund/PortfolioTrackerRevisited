@@ -28,5 +28,20 @@ def pull_data(file):
 
     return df, portfolioValue, historicalValue
 
+def topGainersLosers(historicalValue, totalHoldingStart):
+    print('Creating Top Gainers Table and Top Losers Table')
+    # ---- Creates Table for Top Gainers/Losers
+    priceDifference = historicalValue.iloc[-1].subtract(totalHoldingStart)
+    percentChange = round(priceDifference.divide(totalHoldingStart) * 100, 2)
+    stockChanges = pd.DataFrame(data=percentChange, index=percentChange.index, columns=['% Change'])
+
+    topGainers = stockChanges[stockChanges['% Change'] > 0].sort_values(by=['% Change'], ascending=False)
+    topGainers['% Change'] = '+' + topGainers['% Change'].apply(lambda x: '{:.2f}'.format(x)) + '%' # Lambda conversion keeps trailing 0's
+
+    topLosers = stockChanges[stockChanges['% Change'] < 0].sort_values(by=['% Change'])
+    topLosers['% Change'] = topLosers['% Change'].apply(lambda x: '{:.2f}'.format(x)) + '%'
+
+    return topGainers, topLosers
+
 
 

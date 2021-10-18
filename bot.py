@@ -11,33 +11,12 @@ import matplotlib.pyplot as plt
 import data
 import benchmark
 
-print('Running...')
 
 df, portfolioValue, historicalValue = data.pull_data('portfolio.csv')
 totalHoldingStart, benchPortfolioValue = benchmark.create_benchmark(df, historicalValue)
+benchmark.plot_benchmark(portfolioValue, benchPortfolioValue)
+topGainers, topLosers = data.topGainersLosers(historicalValue, totalHoldingStart)
 
-# ---- Creates Table for Top Gainers/Losers
-priceDifference = historicalValue.iloc[-1].subtract(totalHoldingStart)
-percentChange = round(priceDifference.divide(totalHoldingStart) * 100, 2)
-stockChanges = pd.DataFrame(data=percentChange, index=percentChange.index, columns=['% Change'])
-
-topGainers = stockChanges[stockChanges['% Change'] > 0].sort_values(by=['% Change'], ascending=False)
-topGainers['% Change'] = '+' + topGainers['% Change'].apply(lambda x: '{:.2f}'.format(x)) + '%' # Lambda conversion keeps trailing 0's
-
-topLosers = stockChanges[stockChanges['% Change'] < 0].sort_values(by=['% Change'])
-topLosers['% Change'] = topLosers['% Change'].apply(lambda x: '{:.2f}'.format(x)) + '%'
-
-# ---- Creates Plot of Portfolio
-plt.style.use('Solarize_Light2')
-plt.plot(portfolioValue, color='red')
-plt.plot(benchPortfolioValue, color='blue')
-plt.xticks(rotation = 20)
-plt.ylabel('Portfolio Change')
-plt.xlabel('Days Since Rebalance')
-plt.legend(['RIF', 'Benchmark'])
-plt.title('Portfolio Growth Since The Rebalance V.S. Benchmark', y=1.05)
-plt.savefig('portfolioVSbenchmark.png')
-#plt.show()
 
 #### ---------------- Creating PDF ---------------- ####
 

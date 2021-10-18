@@ -1,5 +1,6 @@
 import yfinance as yf
 import pandas as pd
+import matplotlib.pyplot as plt
 
 def create_benchmark(df, historicalValue):
     # ---- Creates Benchmark Portfolio Value
@@ -37,3 +38,17 @@ def create_benchmark(df, historicalValue):
     benchPortfolioValue['Portfolio'] = benchmarkHistorical.sum(axis=1)
 
     return totalHoldingStart, benchPortfolioValue
+
+def plot_benchmark(portfolioValue, benchPortfolioValue):
+    print('Plotting Benchmark against Portfolio')
+    # ---- Creates Plot of Portfolio
+    plt.style.use('Solarize_Light2')
+    plt.plot(portfolioValue, color='red')
+    plt.plot(benchPortfolioValue, color='blue')
+    plt.xticks(rotation = 20)
+    plt.ylabel('Portfolio Change')
+    plt.xlabel('Days Since Rebalance')
+    plt.legend(['RIF', 'Benchmark'])
+    plt.title('Portfolio Growth Since The Rebalance V.S. Benchmark', y=1.05)
+    plt.savefig('portfolioVSbenchmark.png')
+
