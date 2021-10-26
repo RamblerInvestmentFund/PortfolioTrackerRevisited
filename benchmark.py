@@ -36,7 +36,9 @@ def create_benchmark(df, historicalValue):
     benchmarkHistorical = benchmarkHistorical.mul(benchmarkShares, axis=1)
     benchPortfolioValue = pd.DataFrame(columns=['Portfolio'], index=benchmarkHistorical.index)
     benchPortfolioValue['Portfolio'] = benchmarkHistorical.sum(axis=1)
+    benchmarkValue = benchPortfolioValue['Portfolio'][len(benchPortfolioValue)-1]
 
+    
     return totalHoldingStart, benchPortfolioValue
 
 def plot_benchmark(portfolioValue, benchPortfolioValue):
@@ -51,4 +53,5 @@ def plot_benchmark(portfolioValue, benchPortfolioValue):
     plt.legend(['RIF', 'Benchmark'])
     plt.title('Portfolio Growth Since The Rebalance V.S. Benchmark', y=1.05)
     plt.savefig('portfolioVSbenchmark.png')
+    #plt.show()
 

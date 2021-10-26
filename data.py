@@ -18,6 +18,8 @@ def pull_data(file):
         basis.append(basisPrice)
     df['Basis'] = basis
 
+    valueFolio = sum(basis)
+
     print('Creating Historical Dataframe of Price Values and Portfolio Values...')
     # ---- Creates Historical DataFrame of price data and Portfolio Value Data Frame from the rebalance
     historicalValue = yf.download(tickers=tickerString, start = '2021-06-21')
@@ -26,7 +28,22 @@ def pull_data(file):
     portfolioValue = pd.DataFrame(columns=['Portfolio'], index=historicalValue.index)
     portfolioValue['Portfolio'] = historicalValue.sum(axis=1)
 
-    return df, portfolioValue, historicalValue
+    historicalValueExtended = yf.download(tickers=tickerString, start='2021-01-01')
+    historicalValueExtended = historicalValueExtended['Close']
+    historicalValueExtended = historicalValueExtended.mul(shares, axis=1)
+    portfolioValueExtended = pd.DataFrame(columns=['Portfolio'], index=historicalValueExtended.index)
+    portfolioValueExtended['Portfolio'] = historicalValueExtended.sum(axis=1)
+    portfolioValueExtended.dropna(axis=0)
+
+    # ---- Adds Weights to the DF
+    weightList = []
+
+    for i in df['Basis']:
+        weight = i / valueFolio
+        weightList.append(weight)
+    df['Weight'] = weightList
+
+    return df, portfolioValue, historicalValue, portfolioValueExtended
 
 def topGainersLosers(historicalValue, totalHoldingStart):
     print('Creating Top Gainers Table and Top Losers Table')
