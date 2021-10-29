@@ -1,4 +1,6 @@
 import quantstats as qs
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def create_performance_plots(portfolioValueExtended):
     # ---- Extracting individual graphs from .html report, no option for Cumulative Returns v Benc (Volatility Matched)
@@ -16,3 +18,11 @@ def create_performance_plots(portfolioValueExtended):
     qs.plots.monthly_returns(portfolioValueExtended['Portfolio'], savefig='Figures/monthly_returns.png')
     qs.plots.distribution(portfolioValueExtended['Portfolio'], savefig='Figures/return_quantiles.png')
 
+def create_corr_heatmap(numShares, historicalValue):
+    avgStockPrice = historicalValue.divide(numShares, axis = 1)
+    stockCorr = avgStockPrice.corr(method='pearson')
+    sns.heatmap(stockCorr, annot=False, cmap='coolwarm', xticklabels=True, yticklabels=True, vmin=-1, vmax=1)
+    plt.title('Portfolio Correlation')
+    plt.xticks(fontsize=8)
+    plt.yticks(fontsize=8)
+    plt.savefig('Figures/portfolio_corr.png')

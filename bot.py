@@ -8,9 +8,10 @@ import yfinance as yf
 import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 import data
 import benchmark
-import performance
+import metrics
 import quantstats as qs
 
 
@@ -18,6 +19,8 @@ df, portfolioValue, historicalValue, portfolioValueExtended = data.pull_data('po
 totalHoldingStart, benchPortfolioValue = benchmark.create_benchmark(df, historicalValue)
 benchmark.plot_benchmark(portfolioValue, benchPortfolioValue)
 topGainers, topLosers = data.topGainersLosers(historicalValue, totalHoldingStart)
+metrics.create_performance_plots(portfolioValueExtended)
+metrics.create_corr_heatmap(list(df['Shares']), historicalValue)
 
 qs.extend_pandas()
 # print(df)
@@ -28,13 +31,6 @@ print(portfolioValueExtended)
 # print(benchPortfolioValue)
 
 qs.reports.html(portfolioValueExtended['Portfolio'], "SPY", output='rif_vs_bench.html')
-
-# ---- Extracting individual graphs from .html report
-performance.create_performance_plots(portfolioValueExtended)
-
-# ----Creating  a correlation matrix of returns
-
-
 
 # #### ---------------- Creating PDF ---------------- ####
 # today = datetime.date.today()
