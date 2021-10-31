@@ -38,6 +38,9 @@ def create_benchmark(df, historicalValue):
     benchPortfolioValue['Portfolio'] = benchmarkHistorical.sum(axis=1)
     benchmarkValue = benchPortfolioValue['Portfolio'][len(benchPortfolioValue)-1]
 
+    # - UUP (.05), REET(.05), USCI(.15), TLT(0.25), SPY(0.5)
+    # - Ask lab director about hosting
+
     
     return totalHoldingStart, benchPortfolioValue
 
@@ -52,6 +55,6 @@ def plot_benchmark(portfolioValue, benchPortfolioValue):
     plt.xlabel('Days Since Rebalance')
     plt.legend(['RIF', 'Benchmark'])
     plt.title('Portfolio Growth Since The Rebalance V.S. Benchmark', y=1.05)
-    plt.savefig('portfolioVSbenchmark.png')
+    plt.savefig('Figures/portfolioVSbenchmark.png')
     #plt.show()
 
