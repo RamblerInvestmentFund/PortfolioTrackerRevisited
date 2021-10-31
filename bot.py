@@ -93,6 +93,6 @@ pdf.image(x=150, y=120, w=(pdf.w+1)/2, name='Figures/rol_beta_sharpe.png')
 pdf.output('pdf_1.pdf')
 
 # ---- Call Bot and Send Portfolio
-client = slack.WebClient(token = 'xoxb-596484384067-2488886206882-jqLhKTNaDpcGQcUi0zgQAB96')
+client = slack.WebClient(token = '####')
 client.files_upload(channels = '#sector-materials', file='./pdf_1.pdf')
 
