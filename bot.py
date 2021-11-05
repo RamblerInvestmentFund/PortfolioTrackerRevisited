@@ -80,19 +80,50 @@ for i in gainersList:
 # ---- Third Page
 pdf.add_page()
 pdf.set_fill_color(128, 0, 0)
-pdf.rect(x = 0, y = 0,  w = pdf.w, h = 12, style = 'F')
+pdf.rect(x = 0, y = 0, w = pdf.w, h = 12, style = 'F')
+
+# ----
+pdf.set_fill_color(128, 0, 0)
 pdf.rect(x = 0, y = 198, w = pdf.w, h = 12, style = 'F')
+pdf.image(x = -0.5, y = 12, w = pdf.w + 1, name='Figures/monthly_returns.png')
+
+# ---- Fourth Page
+pdf.add_page()
+pdf.set_fill_color(128, 0, 0)
+pdf.rect(x = 0, y = 0, w = pdf.w, h = 12, style = 'F')
+
+# ----
+pdf.set_fill_color(128, 0, 0)
+pdf.rect(x = 0, y = 198, w = pdf.w, h = 12, style = 'F')
+pdf.image(x = -0.5, y = 12, w = pdf.w + 1, name='Figures/return_quantiles.png')
+
+# ---- Fifth Page
+pdf.add_page()
+pdf.set_fill_color(128, 0, 0)
+pdf.rect(x = 0, y = 0, w = pdf.w, h = 12, style = 'F')
+
+# ----
+pdf.set_fill_color(128, 0, 0)
+pdf.rect(x = 0, y = 198, w = pdf.w, h = 12, style = 'F')
+pdf.image(x = -0.5, y = 12, w = pdf.w + 1, name='Figures/portfolio_corr.png')
+
+# ---- Sixth Page
+pdf.add_page()
 pdf.set_fill_color(0, 0, 0)
-pdf.rect(x = 0, y = 12, w = pdf.w + 1, h = 186, style = 'F')
-pdf.image(x=0, y=20, w=(pdf.w+1)/2, name='Figures/monthly_returns.png')
-pdf.image(x=0, y=102, w=(pdf.w+1)/2, name='Figures/return_quantiles.png')
-pdf.image(x=150, y=20, w=(pdf.w+1)/2, name='Figures/rif_monthly_dist.png')
-pdf.image(x=150, y=120, w=(pdf.w+1)/2, name='Figures/rol_beta_sharpe.png')
+pdf.rect(x = 0, y = 12, w = pdf.w, h = 186, style = 'F')
+pdf.set_fill_color(128, 0, 0)
+pdf.rect(x = 0, y = 0, w = pdf.w, h = 12, style = 'F')
+
+# ----
+pdf.set_fill_color(128, 0, 0)
+pdf.rect(x = 0, y = 198, w = pdf.w, h = 12, style = 'F')
+pdf.image(x = -0.5, y = pdf.h-100, w = pdf.w + 1, name='Figures/rol_beta_sharpe.png')
+pdf.image(x = -0.5, y = 12, w = pdf.w + 1, name='Figures/rol_beta_sortino.png')
 
 # ---- PDF Output
 pdf.output('pdf_1.pdf')
 
 # ---- Call Bot and Send Portfolio
-client = slack.WebClient(token = 'xoxb-596484384067-2488886206882-jqLhKTNaDpcGQcUi0zgQAB96')
+client = slack.WebClient(token = '####')
 client.files_upload(channels = '#sector-materials', file='./pdf_1.pdf')
 
