@@ -1,2 +1,4 @@
 # compiled code
 __pycache__
+
+.DS_Store
