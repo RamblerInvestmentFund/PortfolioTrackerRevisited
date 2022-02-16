@@ -1,0 +1,9 @@
+slack_sdk
+FPDF
+pandas
+matplotlib
+yfinance
+seaborn
+QuantStats
+Quandl
+yahoo-fin
