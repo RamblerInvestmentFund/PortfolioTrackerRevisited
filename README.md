@@ -1,7 +1,3 @@
 # PortfolioTrackerRevisited
 
-about this repo...
-
-TODO:
-- add docstrings
-- remove code smells
+`pip install -r requirements.txt`
