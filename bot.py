@@ -1,129 +1,125 @@
-import slack
-import quandl
-import os
-import logging
-from fpdf import FPDF
 import datetime
-import data
-import benchmark
-import metrics
+import logging
+import os
+
+from fpdf import FPDF
+import quandl
 import quantstats as qs
+# import slack
+
+import benchmark
+import data
+import metrics
 
 
-df, portfolioValue, historicalValue, portfolioValueExtended = data.pull_data('portfolio.csv')
-totalHoldingStart, benchPortfolioValue = benchmark.create_benchmark(df, historicalValue)
-benchmark.plot_benchmark(portfolioValue, benchPortfolioValue)
-topGainers, topLosers = data.topGainersLosers(historicalValue, totalHoldingStart)
+class Document(FPDF):
+    '''extended FPDF class with custom functions'''
 
-metrics.create_performance_plots(portfolioValueExtended)
-metrics.create_corr_heatmap(list(df['Shares']), historicalValue)
+    WHITE = (255,255,255)
+    BLACK = (0,0,0)
+    HALF_RED = (128,0,0)
+    GREEN = (0, 255, 0)
+    RED = (255, 0, 0)
 
-#qs.extend_pandas()
-#qs.reports.html(portfolioValueExtended['Portfolio'], "SPY", output='rif_vs_bench.html')
+    def banner(self, *,top):
+        '''
+        creates a dark red banner at the top or bottom of the page
+        '''
 
-#### ---------------- Creating PDF ---------------- ####
-today = datetime.date.today()
-# ---- Cover Page
-pdf = FPDF(orientation='landscape')
-pdf.set_margin(2)
-pdf.add_page()
-pdf.set_fill_color(128, 0, 0)
-pdf.rect(x = 0, y = 0, w = pdf.w, h = 12, style = 'F')
-# ---- Date
-pdf.set_font("Times", size=22)
-pdf.set_font(style='B')
-pdf.set_text_color(237, 232, 228)
-pdf.cell(txt=str(today), align='C')
-# ----
-pdf.set_fill_color(128, 0, 0)
-pdf.rect(x = 0, y = 198, w = pdf.w, h = 12, style = 'F')
-pdf.image(x = -0.5, y = 12, w = pdf.w + 1, name='RIFLogo(B&W).png')
+        self.set_fill_color(*self.HALF_RED)
+        y = 0 if top else 198
+        self.rect(x = 0, y = y, w = self.w, h = 12, style = 'F')
 
-# ---- Second Page
-pdf.add_page()
-pdf.set_fill_color(128, 0, 0)
-pdf.rect(x = 0, y = 0, w = pdf.w, h = 12, style = 'F')
-pdf.rect(x = 0, y = 198, w = pdf.w, h = 12, style = 'F')
-pdf.set_fill_color(0, 0, 0)
-pdf.rect(x = 0, y = 12, w = pdf.w, h = 186, style = 'F')
-pdf.cell(0, 13, ln=1)
-pdf.set_font("Times", size=16, style='BU')
-pdf.cell(125, 8, 'Top Gainers / Top Losers', align='C')
-pdf.set_font("Times", size=20, style='BU')
-percentGain = (((portfolioValue['Portfolio'][len(portfolioValue)-1] - portfolioValue['Portfolio'][0])/portfolioValue['Portfolio'][0])*100).round(2)
-pdf.cell(((pdf.w/2) + (pdf.w/2 - 125)), 8, 'Performance for the current period: {change}%'.format(change = percentGain), ln=1, align='C')
-pdf.image(x=135, y=47, w=(pdf.w+1)/2, name='Figures/portfolioVSbenchmark.png')
+    def add_page_banners(self):
+        '''creates a new page with banners at the top and bottom'''
 
-pdf.set_text_color(248, 240, 227)
-pdf.set_font("Times", size=14)
+        self.add_page()
+        self.banner(top=True)
+        self.set_fill_color(*self.BLACK)
+        self.rect(x = 0, y = 12, w = self.w, h = 186, style = 'F')
+        self.banner(top=False)
 
-losersList = topLosers.to_records()
-losersList = list(losersList)
-gainersList = topGainers.to_records()
-gainersList = list(gainersList)
+def build_pdf():
+    '''generates pdf report'''
 
-if len(gainersList) > len(losersList):
-    gainersList = gainersList[0:len(losersList)]
-elif len(gainersList) < len(losersList):
-    losersList = losersList[0:len(gainersList)]
+    '''TODO: write to json for quicker intermediate loading ... try excepts'''
+    df, portfolioValue, historicalValue, portfolioValueExtended = data.pull_data('assets/portfolio.csv')
+    totalHoldingStart, benchPortfolioValue = benchmark.create_benchmark(df, historicalValue)
+    benchmark.plot_benchmark(portfolioValue, benchPortfolioValue)
+    topGainers, topLosers = data.topGainersLosers(historicalValue, totalHoldingStart)
 
-j = 0
-for i in gainersList:
-    pdf.set_text_color(0, 255, 0)
-    pdf.cell(25, 8, str(i[0]))
-    pdf.cell(50, 8, i[1])
-    pdf.set_text_color(255, 0, 0)
-    pdf.cell(25, 8, losersList[j][0])
-    pdf.cell(25, 8, losersList[j][1], ln=1)
-    j+=1
+    metrics.create_performance_plots(portfolioValueExtended)
+    metrics.create_corr_heatmap(list(df['Shares']), historicalValue)
 
-# ---- Third Page
-pdf.add_page()
-pdf.set_fill_color(128, 0, 0)
-pdf.rect(x = 0, y = 0, w = pdf.w, h = 12, style = 'F')
+    #qs.extend_pandas()
+    #qs.reports.html(portfolioValueExtended['Portfolio'], "SPY", output='rif_vs_bench.html')
 
-# ----
-pdf.set_fill_color(128, 0, 0)
-pdf.rect(x = 0, y = 198, w = pdf.w, h = 12, style = 'F')
-pdf.image(x = -0.5, y = 12, w = pdf.w + 1, name='Figures/monthly_returns.png')
+    'Cover Page'
+    pdf = Document(orientation='landscape')
 
-# ---- Fourth Page
-pdf.add_page()
-pdf.set_fill_color(128, 0, 0)
-pdf.rect(x = 0, y = 0, w = pdf.w, h = 12, style = 'F')
+    pdf.add_page_banners()
 
-# ----
-pdf.set_fill_color(128, 0, 0)
-pdf.rect(x = 0, y = 198, w = pdf.w, h = 12, style = 'F')
-pdf.image(x = -0.5, y = 12, w = pdf.w + 1, name='Figures/return_quantiles.png')
+    pdf.set_font("Times", size=20, style='B')
+    pdf.set_text_color(*pdf.WHITE)
+    pdf.cell(0,-5,txt=str(datetime.date.today()), align='L')
 
-# ---- Fifth Page
-pdf.add_page()
-pdf.set_fill_color(128, 0, 0)
-pdf.rect(x = 0, y = 0, w = pdf.w, h = 12, style = 'F')
+    pdf.image(x = -0.5, y = 12, w = pdf.w + 1, name='assets/RIFLogo(B&W).png')
 
-# ----
-pdf.set_fill_color(128, 0, 0)
-pdf.rect(x = 0, y = 198, w = pdf.w, h = 12, style = 'F')
-pdf.image(x = -0.5, y = 12, w = pdf.w + 1, name='Figures/portfolio_corr.png')
+    'Second Page'
+    pdf.add_page_banners()
+    pdf.cell(0, 13, ln=1)
 
-# ---- Sixth Page
-pdf.add_page()
-pdf.set_fill_color(0, 0, 0)
-pdf.rect(x = 0, y = 12, w = pdf.w, h = 186, style = 'F')
-pdf.set_fill_color(128, 0, 0)
-pdf.rect(x = 0, y = 0, w = pdf.w, h = 12, style = 'F')
+    pdf.set_font("Times", size=20, style='BU')
+    pdf.cell(125, 8, 'Top Gainers / Top Losers', align='C')
 
-# ----
-pdf.set_fill_color(128, 0, 0)
-pdf.rect(x = 0, y = 198, w = pdf.w, h = 12, style = 'F')
-pdf.image(x = -0.5, y = pdf.h-100, w = pdf.w + 1, name='Figures/rol_beta_sharpe.png')
-pdf.image(x = -0.5, y = 12, w = pdf.w + 1, name='Figures/rol_beta_sortino.png')
+    port = portfolioValue['Portfolio']
+    percentGain = round(100*(port[-1] - port[0])/port[0], 2)
 
-# ---- PDF Output
-pdf.output('pdf_1.pdf')
+    pdf.cell(((pdf.w/2) + (pdf.w/2 - 125)), 8, f'Performance for the current period: {percentGain}%', ln=1, align='C')
 
-# ---- Call Bot and Send Portfolio
-client = slack.WebClient(token = '####')
-client.files_upload(channels = '#sector-materials', file='./pdf_1.pdf')
+    losers = list(topLosers.to_records())
+    gainers = list(topGainers.to_records())
+    minlen = min(len(losers), len(gainers))
+    losers, gainers = losers[:minlen], gainers[:minlen]
 
+    pdf.set_font("Times", size=14)
+    for gainer,loser in zip(gainers, losers):
+        pdf.set_text_color(*pdf.GREEN)
+        pdf.cell(25, 8, gainer[0])
+        pdf.cell(50, 8, gainer[1])
+
+        pdf.set_text_color(*pdf.RED)
+        pdf.cell(25, 8, loser[0])
+        pdf.cell(25, 8, loser[1], ln=1)
+
+    pdf.image(x=135, y=47, w=(pdf.w+1)/2, name='img/portfolioVSbenchmark.png')
+
+    'Third Page'
+    pdf.add_page_banners()
+    pdf.image(x = -0.5, y = 12, w = pdf.w + 1, name='img/monthly_returns.png')
+
+    'Fourth Page'
+    pdf.add_page_banners()
+    pdf.image(x = -0.5, y = 12, w = pdf.w + 1, name='img/return_quantiles.png')
+
+    'Fifth Page'
+    pdf.add_page_banners()
+    pdf.image(x = -0.5, y = 12, w = pdf.w + 1, name='img/portfolio_corr.png')
+
+    'Sixth Page'
+    pdf.add_page_banners()
+    pdf.image(x = -0.5, y = pdf.h-100, w = pdf.w + 1, name='img/rol_beta_sharpe.png')
+    pdf.image(x = -0.5, y = 12, w = pdf.w + 1, name='img/rol_beta_sortino.png')
+
+    pdf.output('assets/testpdf.pdf')
+
+    '''TODO: send to slack_sdk'''
+    # Call Bot and Send Portfolio
+    # client = slack.WebClient(token = '####')
+    # client.files_upload(channels = '#sector-materials', file='assets/testpdf.pdf')
+
+def main():
+    build_pdf()
+
+if __name__ == '__main__':
+    main()

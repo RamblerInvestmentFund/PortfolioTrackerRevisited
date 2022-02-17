@@ -1,60 +1,73 @@
-import yfinance as yf
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
+import yfinance as yf
+from tqdm import tqdm
+
 
 def create_benchmark(df, historicalValue):
-    # ---- Creates Benchmark Portfolio Value
+    """Creates Benchmark Portfolio Value"""
+
     totalHoldingStart = historicalValue.iloc[0]
 
-    sumEquity = 0
-    sumREIT = 0
-    sumCommodity = 0
-    sumBond = 0
-    i = 0
-    for idx in totalHoldingStart.index:
-        if idx == df['Ticker'][i]:
-            type = df['Type'][i]
-            if type == 'Equity':
-                sumEquity += totalHoldingStart[i]
-                i+=1
-            elif type == 'Commodity':
-                sumCommodity += totalHoldingStart[i]
-                i+=1
-            elif type == 'REIT':
-                sumREIT += totalHoldingStart[i]
-                i+=1
-            elif type == 'Bond':
-                sumBond += totalHoldingStart[i]
-                i+=1
+    sums = {k: 0 for k in ["Equity", "Commodity", "REIT", "Bond"]}
+    for i, (ticker, asset_class) in enumerate(zip(df["Ticker"], df["Type"])):
+        if asset_class in sums.keys():
+            sums[asset_class] += totalHoldingStart[i]
 
-    startSum = [sumEquity, sumREIT, sumCommodity, sumBond]
-    ECRB_ETF = ['SPY', 'USCI', 'VNQ', 'TLT']
-    benchmarkHistorical = yf.download(ECRB_ETF, start='2021-06-21')
-    benchmarkHistorical = benchmarkHistorical['Close']
+    "TODO: not used"
+    startSum = [v for v in sums.values()]
+
+    ECRB_ETF = ["SPY", "USCI", "VNQ", "TLT"]
+
+    benchmarkHistorical = yf.download(ECRB_ETF, start="2021-06-21")["Close"]
     benchmarkStart = benchmarkHistorical.iloc[0]
-    benchmarkShares = [(sumEquity/benchmarkStart['SPY']), (sumBond/benchmarkStart['TLT']), (sumCommodity/benchmarkStart['USCI']), (sumREIT/benchmarkStart['VNQ'])]
+
+    benchmarkShares = [
+        (sums["Equity"] / benchmarkStart["SPY"]),
+        (sums["Bond"] / benchmarkStart["TLT"]),
+        (sums["Commodity"] / benchmarkStart["USCI"]),
+        (sums["REIT"] / benchmarkStart["VNQ"]),
+    ]
+
     benchmarkHistorical = benchmarkHistorical.mul(benchmarkShares, axis=1)
-    benchPortfolioValue = pd.DataFrame(columns=['Portfolio'], index=benchmarkHistorical.index)
-    benchPortfolioValue['Portfolio'] = benchmarkHistorical.sum(axis=1)
-    benchmarkValue = benchPortfolioValue['Portfolio'][len(benchPortfolioValue)-1]
+    benchPortfolioValue = pd.DataFrame(
+        columns=["Portfolio"], index=benchmarkHistorical.index
+    )
+    benchPortfolioValue["Portfolio"] = benchmarkHistorical.sum(axis=1)
 
+    '''TODO: not used'''
+    benchmarkValue = benchPortfolioValue["Portfolio"][-1]
+
+    "TODO: Ask lab director about hosting"
     # - UUP (.05), REET(.05), USCI(.15), TLT(0.25), SPY(0.5)
-    # - Ask lab director about hosting
 
-    
     return totalHoldingStart, benchPortfolioValue
 
-def plot_benchmark(portfolioValue, benchPortfolioValue):
-    print('Plotting Benchmark against Portfolio')
-    # ---- Creates Plot of Portfolio
-    plt.style.use('Solarize_Light2')
-    plt.plot(portfolioValue, color='red')
-    plt.plot(benchPortfolioValue, color='blue')
-    plt.xticks(rotation = 20)
-    plt.ylabel('Portfolio Change')
-    plt.xlabel('Days Since Rebalance')
-    plt.legend(['RIF', 'Benchmark'])
-    plt.title('Portfolio Growth Since The Rebalance V.S. Benchmark', y=1.05)
-    plt.savefig('Figures/portfolioVSbenchmark.png')
-    #plt.show()
 
+def plot_benchmark(portfolioValue, benchPortfolioValue):
+    """TODO: docstring"""
+
+    print("Plotting Benchmark against Portfolio")
+
+    plt.style.use("Solarize_Light2")
+    plt.plot(portfolioValue, color="red", label="RIF")
+    plt.plot(benchPortfolioValue, color="blue", label="Benchmark")
+    
+    plt.title("Portfolio Growth Since The Rebalance V.S. Benchmark", y=1.05)
+    plt.ylabel("Portfolio Change")
+    plt.xlabel("Days Since Rebalance")
+
+    plt.legend()
+    plt.xticks(rotation=20)
+
+    plt.tight_layout()
+    plt.savefig("img/portfolioVSbenchmark.png")
+    # plt.show()
+
+
+def main():
+    pass
+
+
+if __name__ == "__main__":
+    main()

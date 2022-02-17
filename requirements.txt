@@ -7,3 +7,4 @@ seaborn
 QuantStats
 Quandl
 yahoo-fin
+tqdm
