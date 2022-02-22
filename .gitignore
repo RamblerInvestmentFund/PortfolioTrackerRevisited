@@ -1,5 +1,11 @@
 __pycache__
 
 .DS_Store
+
+
 .venv
+
+# assets
 *.pdf
+*.html
+*.png
