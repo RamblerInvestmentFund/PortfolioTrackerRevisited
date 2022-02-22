@@ -53,10 +53,6 @@ def build_pdf():
     metrics.create_performance_plots(portfolioValueExtended)
     metrics.create_corr_heatmap(list(df['Shares']), historicalValue)
 
-    # # writes html
-    # qs.extend_pandas()
-    # qs.reports.html(portfolioValueExtended['Portfolio'], "SPY", output='rif_vs_bench.html')
-
     'Cover Page'
     pdf = Document(orientation='landscape')
 
