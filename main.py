@@ -22,6 +22,9 @@ def tearsheet():
         - all available methods
             [f for f in dir(qs.stats) if f[0] != '_']
             [f for f in dir(qs.plots) if f[0] != '_']
+
+        - full automation
+            https://developers.google.com/sheets/api/quickstart/python
     """
 
     *_, portfolioValueExtended = pull_data("assets/portfolio.csv")
